@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" data-type="software">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Try CarryAlong, a campus favor matcher for the HKUST–MTR commute.">
+  <meta name="theme-color" content="#f7f7ef">
+  <meta name="page-type" content="software">
+  <meta name="site-kind" content="software">
+  <meta property="og:title" content="CarryAlong | Campus favor matcher">
+  <meta property="og:description" content="Match a pocket-sized favor with an existing HKUST–MTR trip.">
+  <title>CarryAlong | Campus favor matcher</title>
+  <style>/* STYLE */</style>
+</head>
+<body>
+  <div class="app-shell">
+  <a class="skip" href="#main">Skip to main content</a>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <button class="brand" data-view="match" aria-label="CarryAlong home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>CarryAlong<span class="brand-period">.</span></button>
+      <button class="wallet-button" data-view="wallet" aria-label="Points wallet"><span class="coin" aria-hidden="true">✦</span><strong id="header-points">75</strong> <span>pts</span></button>
+    </div>
+  </header>
+
+  <main class="wrap" id="main" tabindex="-1">
+    <section id="view-match" class="view">
+      <section id="home-screen" aria-labelledby="home-title">
+        <header class="campus-cover">
+          <img class="cover-image" src="/* COVER */" alt="" fetchpriority="high">
+          <div class="cover-copy"><p class="cover-route">HKUST <span aria-hidden="true">⇄</span><span class="sr-only">and</span> MTR</p><h1 id="home-title">Your campus<br>favor exchange</h1><p>Send small items with people already headed your way.</p></div>
+        </header>
+        <div class="home-actions">
+          <button class="home-action send-action" type="button" data-screen="request"><span class="action-icon icon-parcel" aria-hidden="true"></span><span><strong>Send an item</strong><small>Find a matching trip</small></span></button>
+          <button class="home-action carry-action" type="button" data-view="trips" data-screen="post"><span class="action-icon icon-trips" aria-hidden="true"></span><span><strong>Post a trip</strong><small>Offer spare pocket space</small></span></button>
+          <button class="nearby-shortcut" type="button" data-nearby="home"><span class="location-icon" aria-hidden="true"></span><span><strong>Nearby stop</strong><small>Find a starting stop for your trip or favor</small></span><span class="chevron" aria-hidden="true"></span></button>
+        </div>
+
+        <section class="home-section" id="home-activity" aria-labelledby="home-activity-title" hidden>
+          <h2 id="home-activity-title">In progress</h2><div id="home-passes" class="home-passes"></div>
+        </section>
+
+        <section class="home-section" aria-labelledby="sample-title">
+          <div class="section-heading"><div><h2 id="sample-title">Try a sample</h2><p>See how timing and pocket space affect a match.</p></div></div>
+          <div class="demo-list">
+            <button type="button" data-scenario="standard"><span class="demo-icon icon-parcel" aria-hidden="true"></span><span><strong>Campus envelope</strong><small>Hang Hau · ready at 14:00</small></span><span class="chevron" aria-hidden="true"></span></button>
+            <button type="button" data-scenario="tight"><span class="demo-icon icon-clock" aria-hidden="true"></span><span><strong>Tight deadline</strong><small>Hang Hau · deliver by 14:30</small></span><span class="chevron" aria-hidden="true"></span></button>
+            <button type="button" data-scenario="pocket"><span class="demo-icon icon-pocket" aria-hidden="true"></span><span><strong>Pocket capacity</strong><small>Choi Hung · small pocket item</small></span><span class="chevron" aria-hidden="true"></span></button>
+          </div>
+        </section>
+      </section>
+
+      <section id="request-screen" aria-labelledby="request-title" hidden>
+        <div class="screen-actions"><button type="button" class="button secondary" data-screen="home">Home</button><button type="button" class="button secondary nearby-button" data-nearby="request"><span class="location-icon" aria-hidden="true"></span>Nearby stop</button></div>
+        <div class="page-heading request-heading">
+          <h1 id="request-title">Send a favor</h1>
+          <p id="request-intro">Choose where and when your item needs to go.</p>
+        </div>
+        <div class="route-map" aria-label="Schematic of the HKUST routes to Choi Hung and Hang Hau" role="img">
+          <canvas id="map-canvas" aria-hidden="true"></canvas>
+          <span class="map-node map-hk"><b>HKUST</b><small>North Gate</small></span>
+          <span class="map-node map-choi"><b>Choi Hung</b><small>Exit C2</small></span>
+          <span class="map-node map-hang"><b>Hang Hau</b><small>Exit B1</small></span>
+        </div>
+
+        <form id="request-form" class="panel request-panel" aria-label="Favor request">
+          <label for="request-route">Corridor</label>
+          <select id="request-route" name="route"><option value="hang">HKUST ↔ Hang Hau</option><option value="choi">HKUST ↔ Choi Hung</option></select>
+          <div class="inline-fields">
+            <div><label for="request-direction">Direction</label><select id="request-direction" name="direction"><option value="out">To MTR</option><option value="in">To HKUST</option></select></div>
+            <div><label for="request-node">Campus handoff</label><select id="request-node" name="node"><option>Library / Atrium</option><option>North Gate</option><option>Academic Concourse</option></select></div>
+          </div>
+          <div class="inline-fields">
+            <div><label for="request-size">Item size</label><select id="request-size" name="size"><option value="1">Envelope</option><option value="2">Small pocket item</option></select></div>
+            <div><label for="request-urgency">Urgency</label><select id="request-urgency" name="urgency"><option value="1">1 · Flexible</option><option value="2" selected>2 · Standard</option><option value="3">3 · Soon</option><option value="4">4 · Urgent</option></select></div>
+          </div>
+          <div class="inline-fields">
+            <div><label for="request-start">Ready from</label><input id="request-start" name="start" type="time" required value="14:00"></div>
+            <div><label for="request-end">Deliver by</label><input id="request-end" name="end" type="time" required value="15:00"></div>
+          </div>
+          <p class="form-error" id="request-error" role="alert" hidden></p>
+          <button type="submit" class="button primary search-button">Find matches</button>
+        </form>
+      </section>
+
+      <section id="matches-screen" aria-labelledby="result-title" hidden>
+        <div class="screen-actions"><button type="button" class="button secondary" data-screen="request">Edit request</button><span id="result-count" class="counter"></span></div>
+        <div class="page-heading"><h1 id="result-title">Trip matches</h1></div>
+        <div class="route-ticket" id="result-ticket"><span class="line-mark" aria-hidden="true"></span><div><strong id="result-context"></strong><p id="result-window"></p></div></div>
+        <div class="results-sort" id="results-sort"><label for="sort-matches">Sort matches</label><select id="sort-matches"><option value="fit">Best fit</option><option value="arrival">Earliest arrival</option><option value="points">Lowest points</option></select></div>
+        <div id="results" class="result-list"></div>
+        <p id="match-status" role="status" class="sr-only"></p>
+      </section>
+    </section>
+
+    <section id="view-trips" class="view" hidden>
+      <section id="trips-screen" aria-labelledby="trip-list-title">
+        <div class="page-heading"><h1 id="trip-list-title">Traveler trips</h1><p>Find a planned commute or post your own.</p></div>
+        <button type="button" class="button primary post-button" data-screen="post">Post a trip</button>
+        <div class="trip-filters">
+          <div><label for="filter-route">Corridor</label><select id="filter-route"><option value="all">All corridors</option><option value="hang">Hang Hau</option><option value="choi">Choi Hung</option></select></div>
+          <div><label for="filter-direction">Direction</label><select id="filter-direction"><option value="all">Both directions</option><option value="out">To MTR</option><option value="in">To HKUST</option></select></div>
+        </div>
+        <p class="list-count" id="trip-count" role="status"></p>
+        <div id="trip-list" class="trip-list"></div>
+      </section>
+      <section id="post-screen" aria-labelledby="post-title" hidden>
+        <div class="screen-actions"><button type="button" class="button secondary" data-screen="trips">View trips</button><button type="button" class="button secondary nearby-button" data-nearby="trip"><span class="location-icon" aria-hidden="true"></span>Nearby stop</button></div>
+        <div class="page-heading"><h1 id="post-title">Post a trip</h1><p id="trip-intro">Choose your route and carrying limits.</p></div>
+        <form id="trip-form" class="panel request-panel">
+          <label for="trip-route">Corridor</label><select id="trip-route" name="route"><option value="hang">HKUST ↔ Hang Hau</option><option value="choi">HKUST ↔ Choi Hung</option></select>
+          <div class="inline-fields">
+            <div><label for="trip-direction">Direction</label><select id="trip-direction" name="direction"><option value="out">To MTR</option><option value="in">To HKUST</option></select></div>
+            <div><label for="trip-node">Campus trip node</label><select id="trip-node" name="node"><option>North Gate</option><option>Library / Atrium</option><option>Academic Concourse</option></select></div>
+          </div>
+          <div class="inline-fields">
+            <div><label for="trip-depart">Departure</label><input type="time" id="trip-depart" name="depart" required value="14:22"></div>
+            <div><label for="trip-limit">Max detour (min)</label><input type="number" id="trip-limit" name="limit" min="0" max="20" step="1" value="5" required></div>
+          </div>
+          <label for="trip-space">Pocket capacity</label><select name="space" id="trip-space"><option value="1">Envelope</option><option value="2" selected>Small pocket item</option></select>
+          <button type="submit" class="button primary search-button">Add demo trip</button>
+        </form>
+      </section>
+    </section>
+
+    <section id="view-models" class="view" hidden>
+      <div class="page-heading"><h1>Model lab</h1><p>Inspect how the two models make predictions, then check their performance on held-out synthetic pairs.</p></div>
+      <div class="model-summary" id="model-summary"></div>
+      <section class="panel lab-panel" aria-labelledby="benchmark-title">
+        <div class="section-heading"><div><h2 id="benchmark-title">Matching & pricing benchmark</h2><p>1,200 synthetic pairs · 840 training / 180 validation / 180 test</p></div></div>
+        <div class="lab-filters">
+          <div><label for="eval-split">Split</label><select id="eval-split"><option value="test">Test</option><option value="validation">Validation</option></select></div>
+          <div><label for="eval-route">Corridor</label><select id="eval-route"><option value="all">All corridors</option><option value="hang">Hang Hau</option><option value="choi">Choi Hung</option></select></div>
+        </div>
+        <div id="benchmark"></div>
+      </section>
+      <section class="panel lab-panel" aria-labelledby="assumptions-title">
+        <h2 id="assumptions-title">Demo data and assumptions</h2>
+        <p>We use the proposal’s reported detour-tolerance distribution to generate synthetic pairs. Trip and walking times are illustrative. The label is feasible only when all four checks pass for pocket fit, pickup overlap, detour tolerance and arrival deadline.</p>
+        <p>An ordinary least squares model fits rounded point targets generated by an illustrative pricing formula. Its inputs are detour minutes, urgency, item size, time pressure and ride time. The results measure how closely each model learns its synthetic labels. Real commuter behavior and perceived fairness would require a separate study.</p>
+        <p>Nearby stop uses approximate station and bus stop positions from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> and meeting points from <a href="https://shaw-auditorium.hkust.edu.hk/location-transport" target="_blank" rel="noopener noreferrer">HKUST’s travel guide</a>.</p>
+        <p id="ledger-checks" class="check-text"></p>
+      </section>
+    </section>
+
+    <section id="view-wallet" class="view" hidden>
+      <div class="page-heading"><h1>Points wallet</h1><p>Manage handoffs and see where your points go.</p></div>
+      <div class="wallet-summary" id="wallet-summary"></div>
+      <section id="active-favors" class="home-section" aria-labelledby="active-title" hidden><h2 id="active-title">Active handoffs</h2><div id="active-passes" class="home-passes"></div></section>
+      <section class="panel ledger-panel" aria-labelledby="ledger-title">
+        <div class="section-heading"><div><h2 id="ledger-title">History</h2><p>Points are released when you confirm delivery.</p></div></div>
+        <div id="ledger-list"></div>
+      </section>
+      <p class="field-note">Each demo account starts with 75 points. Reservations require enough available points.</p>
+    </section>
+
+    <footer><span>COMP1945 Group 14 · Simulation</span><button class="text-button" id="reset-button">Reset demo</button></footer>
+  </main>
+  <nav class="navigation" aria-label="Main navigation">
+    <button data-view="match" aria-current="page"><span class="tab-icon icon-home" aria-hidden="true"></span>Home</button>
+    <button data-view="trips"><span class="tab-icon icon-trips" aria-hidden="true"></span>Trips</button>
+    <button data-view="wallet"><span class="tab-icon icon-wallet" aria-hidden="true"></span>Wallet</button>
+    <button data-view="models"><span class="tab-icon icon-lab" aria-hidden="true"></span>Model lab</button>
+  </nav>
+  </div>
+
+  <dialog id="detail-dialog" aria-labelledby="dialog-title">
+    <div id="dialog-content"></div>
+    <form method="dialog" class="dialog-dismiss"><button class="button secondary" value="close">Close</button></form>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
+  <script>/* MODEL */</script>
+  <script>/* APP */</script>
+</body>
+</html>
