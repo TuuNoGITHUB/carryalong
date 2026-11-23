@@ -37,11 +37,12 @@ body { margin: 0; }
 .app-shell { max-width: var(--app-width); min-height: 100vh; min-height: 100dvh; margin: 0 auto; padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom)); background: var(--paper); }
 html { scroll-padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 12px); }
 button, input, select { font: inherit; }
+textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 button, select, input { touch-action: manipulation; }
 button, input, select, summary { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #4d7d20; outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #4d7d20; outline-offset: 3px; }
 button { transition: background-color 150ms ease, color 150ms ease, transform 150ms ease; }
 button:active:not(:disabled) { transform: translateY(1px); }
 button[hidden], [hidden] { display: none !important; }
@@ -180,6 +181,7 @@ input[type="time"] { appearance: none; }
 .traveler p, .ledger-row p { color: var(--muted); font-size: .84rem; margin-top: 3px; }
 .pill { border-radius: 100px; padding: 4px 9px; background: #eef1ee; color: var(--muted); font-size: .76rem; font-weight: 730; flex: 0 0 auto; }
 .pill.good { background: #e6f3d8; color: #294e22; }
+.pill.recommended { background: var(--lime); color: #223e19; white-space: nowrap; }
 .pill.warn { background: var(--warn-bg); color: var(--warn); }
 .journey-facts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 12px 0 7px; padding: 11px 9px; background: #f1f6ea; border-radius: 10px; }
 .journey-facts .fact + .fact { padding-left: 7px; border-left: 1px solid #dce7d5; }
@@ -288,6 +290,29 @@ dialog .button { width: 100%; }
 .handoff-steps [aria-current] { background: var(--forest); color: #fff; }
 .pass-note { font-size: .9rem; }
 .pass-actions { display: grid; gap: 7px; }
+.request-extras { margin: 9px 0 5px; padding: 0 9px; background: #f6f8f2; border: 1px solid var(--border); border-radius: 9px; }
+.request-extras summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 44px; font-weight: 700; font-size: .85rem; color: var(--forest); list-style: none; }
+.request-extras summary::-webkit-details-marker { display: none; }
+.request-extras summary span { margin-left: auto; color: var(--muted); font-size: .72rem; font-weight: 650; }
+.request-extras summary::after { content: ''; width: 7px; height: 7px; margin: -4px 3px 0 2px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: rotate(45deg); }
+.request-extras[open] summary::after { margin-top: 4px; transform: rotate(225deg); }
+.extras-fields { padding-bottom: 9px; }
+.extras-fields p, .capacity-help { margin: 0 0 8px; font-size: .82rem; color: var(--muted); }
+.extras-fields fieldset { margin: 9px 0; padding: 7px 8px 8px; min-width: 0; border: 1px solid var(--border); border-radius: 7px; }
+.extras-fields legend { padding: 0 3px; font-weight: 750; font-size: .83rem; }
+.extras-fields legend span { font-weight: 450; color: var(--muted); }
+.extras-fields fieldset input + label { margin-top: 8px; }
+.extras-fields textarea { width: 100%; padding: 8px; resize: vertical; border: 1px solid #d9e1d6; border-radius: 8px; background: #f9faf7; color: var(--ink); }
+.extras-fields .pin-estimate { margin: 4px 0 0; }
+.pin-estimate:empty { display: none; }
+.result-detour-note { margin: 0 0 9px; }
+.handoff-instructions { padding: 8px; border-left: 3px solid #a9bd9c; border-radius: 5px; background: #f2f6ed; overflow-wrap: anywhere; white-space: pre-wrap; }
+.handoff-instructions strong { display: block; margin-bottom: 2px; color: var(--ink); }
+.ticket-stops li strong, .ledger-row p { overflow-wrap: anywhere; }
+.challenge-box { padding: 9px 10px 5px; margin: 9px 0; border: 1px solid #d8e6ce; border-radius: 9px; background: #f2f7e8; }
+.challenge-box h3 { margin-bottom: 3px; }
+.challenge-box p { margin-bottom: 4px; font-size: .83rem; }
+#challenge-clock { color: var(--forest); font-weight: 750; }
 .copy-pass { margin-top: 4px; }
 .copy-status { font-size: .83rem; }
 .copy-status:empty { display: none; }
@@ -349,11 +374,11 @@ dialog .button { width: 100%; }
         </section>
 
         <section class="home-section" aria-labelledby="sample-title">
-          <div class="section-heading"><div><h2 id="sample-title">Try a sample</h2><p>See how timing and pocket space affect a match.</p></div></div>
+          <div class="section-heading"><div><h2 id="sample-title">Try a sample</h2><p>See how timing and carrying capacity affect a match.</p></div></div>
           <div class="demo-list">
             <button type="button" data-scenario="standard"><span class="demo-icon icon-parcel" aria-hidden="true"></span><span><strong>Campus envelope</strong><small>Hang Hau · ready at 14:00</small></span><span class="chevron" aria-hidden="true"></span></button>
             <button type="button" data-scenario="tight"><span class="demo-icon icon-clock" aria-hidden="true"></span><span><strong>Tight deadline</strong><small>Hang Hau · deliver by 14:30</small></span><span class="chevron" aria-hidden="true"></span></button>
-            <button type="button" data-scenario="pocket"><span class="demo-icon icon-pocket" aria-hidden="true"></span><span><strong>Pocket capacity</strong><small>Choi Hung · small pocket item</small></span><span class="chevron" aria-hidden="true"></span></button>
+            <button type="button" data-scenario="pocket"><span class="demo-icon icon-pocket" aria-hidden="true"></span><span><strong>Takeaway food</strong><small>Choi Hung · additional bag</small></span><span class="chevron" aria-hidden="true"></span></button>
           </div>
         </section>
       </section>
@@ -379,13 +404,29 @@ dialog .button { width: 100%; }
             <div><label for="request-node">Campus handoff</label><select id="request-node" name="node"><option>Library / Atrium</option><option>North Gate</option><option>Academic Concourse</option></select></div>
           </div>
           <div class="inline-fields">
-            <div><label for="request-size">Item size</label><select id="request-size" name="size"><option value="1">Envelope</option><option value="2">Small pocket item</option></select></div>
+            <div><label for="request-size">Item size</label><select id="request-size" name="size"><option value="1">Pocket size</option><option value="2">Fits in bag</option><option value="3">Additional bag</option></select></div>
             <div><label for="request-urgency">Urgency</label><select id="request-urgency" name="urgency"><option value="1">1 · Flexible</option><option value="2" selected>2 · Standard</option><option value="3">3 · Soon</option><option value="4">4 · Urgent</option></select></div>
           </div>
+          <p class="capacity-help" id="size-hint" hidden>Use an additional bag for items carried separately, such as takeaway food.</p>
           <div class="inline-fields">
             <div><label for="request-start">Ready from</label><input id="request-start" name="start" type="time" required value="14:00"></div>
             <div><label for="request-end">Deliver by</label><input id="request-end" name="end" type="time" required value="15:00"></div>
           </div>
+          <details class="request-extras" id="request-extras"><summary>Pickup, drop-off &amp; instructions <span>Optional</span></summary>
+            <div class="extras-fields">
+              <p>Enter a place name or address. Paste a map pin as latitude, longitude to estimate the extra walk. Without a pin, agree on the exact location and any added time together.</p>
+              <fieldset><legend>Pickup <span id="pickup-anchor"></span></legend>
+                <label for="pickup-label">Pickup place</label><input type="text" id="pickup-label" name="pickupLabel" maxlength="100" placeholder="e.g. Outside the café">
+                <label for="pickup-pin">Pickup map pin</label><input type="text" id="pickup-pin" name="pickupPin" maxlength="45" placeholder="e.g. 22.3386, 114.2620" spellcheck="false">
+              </fieldset>
+              <fieldset><legend>Drop-off <span id="dropoff-anchor"></span></legend>
+                <label for="dropoff-label">Drop-off place</label><input type="text" id="dropoff-label" name="dropoffLabel" maxlength="100" placeholder="e.g. Next to the station entrance">
+                <label for="dropoff-pin">Drop-off map pin</label><input type="text" id="dropoff-pin" name="dropoffPin" maxlength="45" placeholder="Latitude, longitude" spellcheck="false">
+              </fieldset>
+              <label for="request-instructions">Additional instructions</label><textarea id="request-instructions" name="instructions" maxlength="240" rows="3" placeholder="e.g. Please keep the food bag upright."></textarea>
+              <p id="pin-estimate" class="pin-estimate" role="status"></p>
+            </div>
+          </details>
           <p class="form-error" id="request-error" role="alert" hidden></p>
           <button type="submit" class="button primary search-button">Find matches</button>
         </form>
@@ -395,6 +436,7 @@ dialog .button { width: 100%; }
         <div class="screen-actions"><button type="button" class="button secondary" data-screen="request">Edit request</button><span id="result-count" class="counter"></span></div>
         <div class="page-heading"><h1 id="result-title">Trip matches</h1></div>
         <div class="route-ticket" id="result-ticket"><span class="line-mark" aria-hidden="true"></span><div><strong id="result-context"></strong><p id="result-window"></p></div></div>
+        <p class="field-note result-detour-note" id="result-detour-note" hidden></p>
         <div class="results-sort" id="results-sort"><label for="sort-matches">Sort matches</label><select id="sort-matches"><option value="fit">Best fit</option><option value="arrival">Earliest arrival</option><option value="points">Lowest points</option></select></div>
         <div id="results" class="result-list"></div>
         <p id="match-status" role="status" class="sr-only"></p>
@@ -425,7 +467,7 @@ dialog .button { width: 100%; }
             <div><label for="trip-depart">Departure</label><input type="time" id="trip-depart" name="depart" required value="14:22"></div>
             <div><label for="trip-limit">Max detour (min)</label><input type="number" id="trip-limit" name="limit" min="0" max="20" step="1" value="5" required></div>
           </div>
-          <label for="trip-space">Pocket capacity</label><select name="space" id="trip-space"><option value="1">Envelope</option><option value="2" selected>Small pocket item</option></select>
+          <label for="trip-space">Carrying capacity</label><select name="space" id="trip-space"><option value="1">Pocket size</option><option value="2" selected>Fits in bag</option><option value="3">Additional bag</option></select>
           <button type="submit" class="button primary search-button">Add demo trip</button>
         </form>
       </section>
@@ -444,7 +486,7 @@ dialog .button { width: 100%; }
       </section>
       <section class="panel lab-panel" aria-labelledby="assumptions-title">
         <h2 id="assumptions-title">Demo data and assumptions</h2>
-        <p>We use the proposal’s reported detour-tolerance distribution to generate synthetic pairs. Trip and walking times are illustrative. The label is feasible only when all four checks pass for pocket fit, pickup overlap, detour tolerance and arrival deadline.</p>
+        <p>We use the proposal’s reported detour-tolerance distribution to generate synthetic pairs. Trip and walking times are illustrative. The label is feasible only when carrying capacity, pickup overlap, detour tolerance and arrival deadline all pass.</p>
         <p>An ordinary least squares model fits rounded point targets generated by an illustrative pricing formula. Its inputs are detour minutes, urgency, item size, time pressure and ride time. The results measure how closely each model learns its synthetic labels. Real commuter behavior and perceived fairness would require a separate study.</p>
         <p>Nearby stop uses approximate station and bus stop positions from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> and meeting points from <a href="https://shaw-auditorium.hkust.edu.hk/location-transport" target="_blank" rel="noopener noreferrer">HKUST’s travel guide</a>.</p>
         <p id="ledger-checks" class="check-text"></p>
@@ -488,39 +530,58 @@ const startingStops = {
   choi: {name: 'Choi Hung MTR', code: routes.choi.code, description: 'Meet at Exit C2 · towards HKUST', lat: 22.3350, lon: 114.2088}
 };
 const NEARBY_LIMIT_METERS = 1200;
+const WALK_METERS_PER_MINUTE = 75;
+const QUICK_ACCEPT_SECONDS = 30;
+const QUICK_ACCEPT_POINTS = 2;
+const EARLY_ARRIVAL_POINTS = 3;
+
+function distanceMeters({lat, lon}, stop) {
+  const radians = degrees => degrees * Math.PI / 180;
+  const latitudeTerm = Math.sin(radians(stop.lat - lat) / 2) ** 2;
+  const longitudeTerm = Math.sin(radians(stop.lon - lon) / 2) ** 2;
+  const arc = latitudeTerm + Math.cos(radians(lat)) * Math.cos(radians(stop.lat)) * longitudeTerm;
+  return 12_742_000 * Math.asin(Math.sqrt(Math.min(1, arc)));
+}
 
 function nearestStartingStop({latitude, longitude, accuracy}) {
   if (![latitude, longitude, accuracy].every(Number.isFinite) || accuracy > 1000) return {status: 'uncertain'};
-  const radians = degrees => degrees * Math.PI / 180;
-  const distance = stop => {
-    const latitudeTerm = Math.sin(radians(stop.lat - latitude) / 2) ** 2;
-    const longitudeTerm = Math.sin(radians(stop.lon - longitude) / 2) ** 2;
-    const arc = latitudeTerm + Math.cos(radians(latitude)) * Math.cos(radians(stop.lat)) * longitudeTerm;
-    return 12_742_000 * Math.asin(Math.sqrt(Math.min(1, arc)));
-  };
-  const nearest = Object.entries(startingStops).map(([key, stop]) => ({key, meters: distance(stop)}))
+  const nearest = Object.entries(startingStops).map(([key, stop]) => ({key, meters: distanceMeters({lat: latitude, lon: longitude}, stop)}))
     .reduce((best, candidate) => candidate.meters < best.meters ? candidate : best);
   return nearest.meters <= NEARBY_LIMIT_METERS ? {status: 'found', ...nearest} : {status: 'outside'};
 }
 const nodes = {'North Gate': 0, 'Library / Atrium': 3, 'Academic Concourse': 5};
-const sizes = {Envelope: 1, 'Small pocket item': 2};
+const sizes = ['', 'Pocket size', 'Fits in bag', 'Additional bag'];
 const START_POINTS = 75;
 const bucket = time => time < 660 ? 0 : time < 840 ? 1 : time < 1080 ? 2 : 3;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const fromTime = time => time.split(':').reduce((hours, minutes) => Number(hours) * 60 + Number(minutes));
 const toTime = time => `${String(Math.floor(time / 60)).padStart(2, '0')}:${String(time % 60).padStart(2, '0')}`;
 
+function estimatePinWalk(value, anchor) {
+  if (!value.trim()) return {};
+  const parts = value.trim().match(/^([+-]?\d{1,3}(?:\.\d+)?)\s*,\s*([+-]?\d{1,3}(?:\.\d+)?)$/);
+  if (!parts || Math.abs(Number(parts[1])) > 90 || Math.abs(Number(parts[2])) > 180) return {error: 'Enter a map pin as latitude, longitude.'};
+  const lat = Number(parts[1]);
+  const lon = Number(parts[2]);
+  const meters = distanceMeters({lat, lon}, anchor);
+  if (meters > NEARBY_LIMIT_METERS) return {error: `Choose a pin within 1.2 km of ${anchor.name}.`};
+  return {pin: `${lat.toFixed(5)}, ${lon.toFixed(5)}`, minutes: Math.ceil(meters / WALK_METERS_PER_MINUTE)};
+}
+
 function pairFeatures(request, trip) {
-  const detour = Math.abs(nodes[request.node] - nodes[trip.node]) + 1;
+  const campusWalk = request.campusPinMinutes === undefined ? Math.abs(nodes[request.node] - nodes[trip.node])
+    : nodes[trip.node] + request.campusPinMinutes;
+  const stationWalk = request.stationPinMinutes ?? 0;
+  const detour = campusWalk + stationWalk + 1;
   const overlap = Math.max(0, Math.min(request.end, trip.depart) - Math.max(request.start, trip.depart - 12));
   const fit = Number(request.size <= trip.space);
   const period = bucket(trip.depart);
   const ride = routes[trip.route].minutes[period];
   const arrival = trip.depart + ride + detour;
   const pressure = clamp((60 - (request.end - request.start)) / 60, 0, 1);
-  const reason = !fit ? 'Item exceeds pocket capacity' : overlap <= 0 ? 'No pickup window overlap'
+  const reason = !fit ? 'Item exceeds carrying capacity' : overlap <= 0 ? 'No pickup window overlap'
     : detour > trip.limit ? 'Detour exceeds tolerance' : arrival > request.end ? 'Arrival misses the deadline' : '';
-  return {detour, overlap, fit, ride, arrival, period, pressure, reason, rule: !reason,
+  return {detour, campusWalk, stationWalk, overlap, fit, ride, arrival, period, pressure, reason, rule: !reason,
     matchInput: [detour, overlap, fit, request.urgency, trip.limit, ride, period],
     priceInput: [1, detour, request.urgency, request.size, pressure, ride]};
 }
@@ -538,8 +599,11 @@ function generatePairs() {
     const period = time < .26 ? 0 : time < .54 ? 1 : time < .78 ? 2 : 3;
     const depart = integer([480, 660, 840, 1080][period], [659, 839, 1079, 1290][period]);
     const start = depart + integer(-45, 12);
-    const request = {node: pick(Object.keys(nodes)), size: integer(1, 2), urgency: integer(1, 4), start, end: start + integer(27, 105)};
-    const trip = {node: pick(Object.keys(nodes)), route, depart, limit: pick(tolerances), space: random() < .62 ? 2 : 1};
+    const request = {node: pick(Object.keys(nodes)), size: integer(1, 3), urgency: integer(1, 4), start, end: start + integer(27, 105)};
+    const space = random();
+    const trip = {node: pick(Object.keys(nodes)), route, depart, limit: pick(tolerances), space: space < .28 ? 1 : space < .63 ? 2 : 3};
+    if (random() < .30) request.stationPinMinutes = integer(1, 7);
+    if (random() < .12) request.campusPinMinutes = integer(1, 7);
     const features = pairFeatures(request, trip);
     const target = Math.round(features.priceInput.reduce((sum, value, index) => sum + weights[index] * value, 0));
     return {route, ...features, target};
@@ -612,19 +676,44 @@ function reserve(favors, favor) {
   return true;
 }
 
-function settle(favors, id, status) {
+function settle(favors, id, status, now = Date.now()) {
   const favor = favors.find(entry => entry.id === id && entry.status === 'held');
   if (!favor || !['delivered', 'cancelled'].includes(status)) return false;
   if (Boolean(favor.pickedUpAt) !== (status === 'delivered')) return false;
   favor.status = status;
-  favor.settledAt = Date.now();
+  favor.settledAt = now;
+  if (status === 'delivered' && favor.offeredAt) {
+    favor.journeyMinutes = elapsedJourney(favor, now);
+    favor.quickBonus = quickAcceptBonus(favor);
+    favor.journeyBonus = favor.journeyMinutes < favor.estimateMinutes ? EARLY_ARRIVAL_POINTS : 0;
+  }
   return true;
 }
 
-function markPickup(favors, id) {
-  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && !entry.pickedUpAt);
+function acceptOffer(favors, id, now = Date.now()) {
+  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && entry.offeredAt && !entry.acceptedAt);
   if (!favor) return false;
-  favor.pickedUpAt = Date.now();
+  favor.acceptedAt = now;
+  return true;
+}
+
+function quickAcceptBonus(favor) {
+  const elapsed = favor.acceptedAt - favor.offeredAt;
+  return elapsed >= 0 && elapsed <= QUICK_ACCEPT_SECONDS * 1000 ? QUICK_ACCEPT_POINTS : 0;
+}
+
+function elapsedJourney(favor, now = Date.now()) {
+  return Math.max(1, Math.floor((now - favor.pickedUpAt) / 1000));
+}
+
+function earnedBonus(favor) { return (favor.quickBonus ?? 0) + (favor.journeyBonus ?? 0); }
+
+function needsAcceptance(favor) { return Boolean(favor.offeredAt && !favor.acceptedAt); }
+
+function markPickup(favors, id, now = Date.now()) {
+  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && !entry.pickedUpAt);
+  if (!favor || needsAcceptance(favor)) return false;
+  favor.pickedUpAt = now;
   return true;
 }
 
@@ -633,14 +722,16 @@ function validateLedger() {
   for (let trial = 0; trial < 20; trial++) {
     const favors = [];
     const points = 20 + trial % 6;
-    const firstHeld = reserve(favors, {id: 'a', tripId: 'a', points});
+    const firstHeld = reserve(favors, {id: 'a', tripId: 'a', points, offeredAt: 1000, estimateMinutes: 20});
     const firstOkay = firstHeld && walletSummary(favors).held === points && walletSummary(favors).available === START_POINTS - points;
     const duplicateBlocked = !reserve(favors, {id: 'dup', tripId: 'a', points});
     const overspendBlocked = !reserve(favors, {id: 'big', tripId: 'b', points: START_POINTS});
-    const pickupRequired = !settle(favors, 'a', 'delivered') && markPickup(favors, 'a')
+    const accepted = !markPickup(favors, 'a') && acceptOffer(favors, 'a', 2000) && !acceptOffer(favors, 'a', 3000);
+    const pickupRequired = accepted && !settle(favors, 'a', 'delivered') && markPickup(favors, 'a', 3000)
       && !markPickup(favors, 'a') && !settle(favors, 'a', 'cancelled') && walletSummary(favors).held === points;
-    const delivered = settle(favors, 'a', 'delivered');
-    const paidOnce = pickupRequired && delivered && !settle(favors, 'a', 'delivered') && walletSummary(favors).paid === points && walletSummary(favors).held === 0;
+    const delivered = settle(favors, 'a', 'delivered', 7000);
+    const paidOnce = pickupRequired && delivered && !settle(favors, 'a', 'delivered') && earnedBonus(favors[0]) === 5
+      && walletSummary(favors).paid === points && walletSummary(favors).held === 0;
     const secondHeld = reserve(favors, {id: 'c', tripId: 'c', points: 15});
     const refunded = secondHeld && settle(favors, 'c', 'cancelled') && walletSummary(favors).available === START_POINTS - points;
     checks += [firstOkay, duplicateBlocked, overspendBlocked, paidOnce, refunded].filter(Boolean).length;
@@ -657,14 +748,15 @@ const storageKey = 'carryalong-demo-v1';
 const scenarios = {
   standard: {route: 'hang', direction: 'out', node: 'Library / Atrium', size: 1, urgency: 2, start: 840, end: 900},
   tight: {route: 'hang', direction: 'out', node: 'Library / Atrium', size: 1, urgency: 4, start: 840, end: 870},
-  pocket: {route: 'choi', direction: 'out', node: 'North Gate', size: 2, urgency: 2, start: 840, end: 915}
+  pocket: {route: 'choi', direction: 'out', node: 'North Gate', size: 3, urgency: 2, start: 840, end: 915,
+    instructions: 'Please keep the takeaway bag upright.'}
 };
 const seedTrips = [
-  {id: 't1', name: 'Mira', route: 'hang', direction: 'out', node: 'North Gate', depart: 856, limit: 5, space: 2},
-  {id: 't2', name: 'Jay', route: 'hang', direction: 'out', node: 'Academic Concourse', depart: 869, limit: 8, space: 1},
+  {id: 't1', name: 'Mira', route: 'hang', direction: 'out', node: 'North Gate', depart: 856, limit: 9, space: 2},
+  {id: 't2', name: 'Jay', route: 'hang', direction: 'out', node: 'Academic Concourse', depart: 869, limit: 7, space: 2},
   {id: 't3', name: 'Sophie', route: 'hang', direction: 'out', node: 'Library / Atrium', depart: 886, limit: 5, space: 2},
   {id: 't4', name: 'Alex', route: 'choi', direction: 'out', node: 'North Gate', depart: 852, limit: 5, space: 1},
-  {id: 't5', name: 'Noor', route: 'choi', direction: 'out', node: 'Library / Atrium', depart: 864, limit: 5, space: 2},
+  {id: 't5', name: 'Noor', route: 'choi', direction: 'out', node: 'North Gate', depart: 864, limit: 5, space: 3},
   {id: 't6', name: 'Sam', route: 'choi', direction: 'out', node: 'Academic Concourse', depart: 876, limit: 5, space: 2},
   {id: 't7', name: 'Luca', route: 'hang', direction: 'in', node: 'North Gate', depart: 856, limit: 5, space: 2},
   {id: 't8', name: 'Mei', route: 'choi', direction: 'in', node: 'Library / Atrium', depart: 862, limit: 8, space: 2}
@@ -689,6 +781,9 @@ let evaluated = [];
 let preferredTripId;
 let openPassId;
 let toastTimer;
+let challengeTimer;
+
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[character]));
 
 function uniqueId() {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -717,10 +812,37 @@ function routeLabel(route, direction, campus = 'HKUST') {
   return direction === 'out' ? `${campus} → ${routes[route].name}` : `${routes[route].name} → ${campus}`;
 }
 
-function handoffLabel(candidate) {
+function handoffStops(candidate) {
   const station = `${routes[candidate.trip.route].name} ${routes[candidate.trip.route].exit}`;
   const campus = `HKUST ${request.node}`;
-  return request.direction === 'out' ? `${campus} → ${station}` : `${station} → ${campus}`;
+  const pair = request.direction === 'out' ? [campus, station] : [station, campus];
+  const stopLabel = (label, pin, fallback) => pin ? `${label || 'Map pin'} (${pin})` : label || fallback;
+  return [stopLabel(request.pickupLabel, request.pickupPin, pair[0]), stopLabel(request.dropoffLabel, request.dropoffPin, pair[1])];
+}
+
+function handoffLabel(candidate) { return handoffStops(candidate).join(' → '); }
+
+function savedHandoffStops(favor) {
+  return favor.pickup ? [favor.pickup, favor.dropoff] : favor.handoff.split(' → ');
+}
+
+function readRequestPins(form) {
+  const anchors = form.direction === 'out' ? [startingStops.campus, startingStops[form.route]] : [startingStops[form.route], startingStops.campus];
+  const [pickup, dropoff] = [estimatePinWalk(form.pickupPin, anchors[0]), estimatePinWalk(form.dropoffPin, anchors[1])];
+  return {anchors, pickup, dropoff};
+}
+
+function updateRequestExtras() {
+  const form = Object.fromEntries(new FormData(requestForm));
+  const {anchors, pickup, dropoff} = readRequestPins(form);
+  $('size-hint').hidden = form.size !== '3';
+  $('pickup-anchor').textContent = `near ${anchors[0].name}`;
+  $('dropoff-anchor').textContent = `near ${anchors[1].name}`;
+  $('pickup-pin').placeholder = `e.g. ${anchors[0].lat.toFixed(4)}, ${anchors[0].lon.toFixed(4)}`;
+  $('dropoff-pin').placeholder = `e.g. ${anchors[1].lat.toFixed(4)}, ${anchors[1].lon.toFixed(4)}`;
+  const estimates = [pickup, dropoff].map((pin, index) => pin.error ? `${index === 0 ? 'Pickup' : 'Drop-off'}: ${pin.error}` : pin.minutes === undefined ? ''
+    : `${index === 0 ? 'Pickup' : 'Drop-off'} pin: ${pin.minutes} min from ${anchors[index].name}.`);
+  $('pin-estimate').textContent = estimates.filter(Boolean).join(' ');
 }
 
 function drawMap() {
@@ -782,28 +904,34 @@ function allTrips() { return [...seedTrips, ...state.trips]; }
 
 function evaluateTrips() {
   const sort = $('sort-matches').value;
+  const bestFit = (a, b) => b.votes - a.votes || a.neighborDistance - b.neighborDistance
+    || a.features.detour - b.features.detour || a.features.arrival - b.features.arrival;
   const order = {
-    fit: (a, b) => Number(b.trip.id === preferredTripId) - Number(a.trip.id === preferredTripId)
-      || b.votes - a.votes || a.features.detour - b.features.detour,
+    fit: bestFit,
     arrival: (a, b) => a.features.arrival - b.features.arrival,
     points: (a, b) => a.points - b.points
   }[sort];
-  return allTrips().filter(trip => trip.route === request.route && trip.direction === request.direction).map(trip => {
+  const candidates = allTrips().filter(trip => trip.route === request.route && trip.direction === request.direction).map(trip => {
     const features = pairFeatures(request, trip);
     const neighbors = models.neighbors(features);
     const votes = neighbors.filter(row => row.rule).length;
     const predicted = votes >= 3;
     const existing = state.favors.find(favor => favor.tripId === trip.id && favor.status !== 'cancelled');
     const feasible = predicted && features.rule;
-    return {trip, features, neighbors, votes, predicted, feasible, existing,
+    const neighborDistance = neighbors.reduce((total, neighbor) => total + neighbor.distance, 0) / neighbors.length;
+    return {trip, features, neighbors, votes, neighborDistance, predicted, feasible, existing,
       points: Math.max(1, Math.round(models.price(features))), available: feasible && !existing};
-  }).sort((a,b) => Number(b.available) - Number(a.available) || Number(b.feasible) - Number(a.feasible)
+  });
+  const recommended = candidates.filter(candidate => candidate.available).sort(bestFit)[0];
+  if (recommended) recommended.recommended = true;
+  return candidates.sort((a,b) => Number(b.available) - Number(a.available) || Number(b.feasible) - Number(a.feasible)
     || order(a, b) || a.features.arrival - b.features.arrival);
 }
 
 function pill(candidate) {
-  if (candidate.existing) return `<span class="pill ${candidate.existing.status === 'delivered' ? 'good' : ''}">${candidate.existing.status === 'delivered' ? 'Delivered' : candidate.existing.pickedUpAt ? 'In transit' : 'Reserved'}</span>`;
-  if (candidate.feasible) return '<span class="pill good">Feasible</span>';
+  if (candidate.existing) return `<span class="pill ${candidate.existing.status === 'delivered' ? 'good' : ''}">${handoffStatus(candidate.existing)}</span>`;
+  if (candidate.recommended) return '<span class="pill recommended">Our recommended</span>';
+  if (candidate.feasible) return `<span class="pill good">${candidate.trip.id === preferredTripId ? 'Selected trip' : 'Feasible'}</span>`;
   return `<span class="pill ${candidate.predicted ? 'warn' : ''}">${candidate.predicted ? 'Rule blocked' : 'Not feasible'}</span>`;
 }
 
@@ -820,14 +948,14 @@ function reviewButton(candidate) {
 function featuredCard(candidate) {
   const {trip, features, points} = candidate;
   return `<article class="result-card featured" data-trip="${trip.id}">
-    <div class="card-top">${traveler(trip)}<span class="pill good">${trip.id === preferredTripId ? 'Selected trip' : 'Feasible'}</span></div>
+    <div class="card-top">${traveler(trip)}${pill(candidate)}</div>
     <div class="journey-facts">
       <div class="fact"><span>Arrives by</span><strong>${toTime(features.arrival)}</strong></div>
       <div class="fact"><span>Extra time</span><strong>+${features.detour} min</strong></div>
       <div class="fact"><span>Point quote</span><strong>${points} pts</strong></div>
     </div>
-    <p class="match-support">Fits their pocket · ${features.overlap} min pickup overlap</p>
-    <div class="detour"><strong id="meter-label-${trip.id}">Detour Shame Meter</strong><span>${features.detour} min / ${trip.limit} min limit</span>
+    <p class="match-support">Capacity: ${sizes[trip.space]} · ${features.overlap} min pickup overlap</p>
+    <div class="detour"><strong id="meter-label-${trip.id}">Detour Meter</strong><span>${features.detour} min / ${trip.limit} min limit</span>
       <progress aria-labelledby="meter-label-${trip.id}" aria-valuetext="${features.detour} minutes out of ${trip.limit} allowed" max="${trip.limit}" value="${features.detour}"></progress></div>
     <div class="card-bottom"><button type="button" data-explain="${trip.id}" class="text-button">Why this match?</button>${reviewButton(candidate)}</div>
   </article>`;
@@ -849,11 +977,16 @@ function renderResults() {
   evaluated = evaluateTrips();
   const open = evaluated.filter(candidate => candidate.available);
   const blocked = evaluated.filter(candidate => !candidate.available);
-  const item = Object.keys(sizes).find(label => sizes[label] === request.size);
+  const item = sizes[request.size];
   $('result-ticket').dataset.route = request.route;
   $('result-ticket').querySelector('.line-mark').textContent = routes[request.route].code;
   $('result-context').textContent = `${routeLabel(request.route, request.direction)} · ${item}`;
   $('result-window').textContent = `Ready from ${toTime(request.start)} · Deliver by ${toTime(request.end)}`;
+  const missingPin = (request.pickupLabel && !request.pickupPin) || (request.dropoffLabel && !request.dropoffPin);
+  const hasPin = request.pickupPin || request.dropoffPin;
+  const notes = [hasPin ? 'Pin detours use straight-line distance at 75 m/min.' : '', missingPin ? 'Confirm unpinned locations and any extra walking time with the traveler.' : ''];
+  $('result-detour-note').textContent = notes.filter(Boolean).join(' ');
+  $('result-detour-note').hidden = !hasPin && !missingPin;
   $('result-count').textContent = `${open.length} feasible`;
   $('match-status').textContent = `${open.length} feasible unbooked matches out of ${evaluated.length} trips.`;
   $('results-sort').hidden = open.length < 2;
@@ -879,10 +1012,10 @@ function renderTrips() {
   $('trip-count').textContent = `${trips.length} ${trips.length === 1 ? 'trip' : 'trips'}`;
   $('trip-list').innerHTML = trips.map(trip => {
     const activity = state.favors.find(favor => favor.tripId === trip.id && favor.status !== 'cancelled');
-    const status = activity?.status === 'held' ? 'Reserved' : activity?.status === 'delivered' ? 'Delivered' : trip.posted ? 'Just posted' : 'Sample trip';
+    const status = activity ? handoffStatus(activity) : trip.posted ? 'Just posted' : 'Sample trip';
     return `<article class="result-card trip-card" data-route="${trip.route}"><div class="trip-line"><span class="line-mark" aria-hidden="true">${routes[trip.route].code}</span><strong>${routeLabel(trip.route, trip.direction)}</strong></div>
       <div class="card-top">${traveler(trip)}<span class="pill">${status}</span></div>
-      <div class="compact-actions"><p class="compact-facts">${trip.limit} min max detour · ${trip.space === 1 ? 'Envelope' : 'Small pocket item'}</p>
+      <div class="compact-actions"><p class="compact-facts">${trip.limit} min max detour · ${sizes[trip.space]}</p>
       ${activity ? `<button type="button" class="text-button" data-pass="${activity.id}">View pass</button>` : `<button type="button" class="text-button" data-prep-trip="${trip.id}">Plan a favor</button>`}</div></article>`;
   }).join('') || '<div class="notice"><h3>No trips for these filters</h3><p>Change the corridor or direction to see more trips.</p></div>';
 }
@@ -891,8 +1024,15 @@ function metricCard(label, value, description) {
   return `<article class="panel metric-card"><span>${label}</span><strong>${value}</strong><p>${description}</p></article>`;
 }
 
+function handoffStatus(favor) {
+  if (favor.status === 'delivered') return 'Delivered';
+  if (favor.status === 'cancelled') return 'Cancelled';
+  if (favor.pickedUpAt) return 'In transit';
+  return needsAcceptance(favor) ? 'Awaiting acceptance' : 'Ready for pickup';
+}
+
 function passCard(favor) {
-  const stage = favor.pickedUpAt ? 'In transit' : 'Ready for pickup';
+  const stage = handoffStatus(favor);
   return `<button class="pass-card" type="button" data-pass="${favor.id}" data-route="${favor.route}">
     <span class="line-mark" aria-hidden="true">${routes[favor.route].code}</span>
     <span><strong>${favor.name} · ${favor.item}</strong><small>${stage} · ${favor.points} pts held</small></span><span class="chevron" aria-hidden="true"></span></button>`;
@@ -903,13 +1043,15 @@ const ledgerTime = new Intl.DateTimeFormat('en-HK', {timeZone: 'Asia/Hong_Kong',
 function renderWallet() {
   const {available, held, paid} = walletSummary(state.favors);
   const earned = new Map();
-  for (const favor of state.favors.filter(entry => entry.status === 'delivered')) {
-    earned.set(favor.name, (earned.get(favor.name) ?? 0) + favor.points);
+  const deliveredFavors = state.favors.filter(entry => entry.status === 'delivered');
+  const bonuses = deliveredFavors.reduce((total, favor) => total + earnedBonus(favor), 0);
+  for (const favor of deliveredFavors) {
+    earned.set(favor.name, (earned.get(favor.name) ?? 0) + favor.points + earnedBonus(favor));
   }
   $('header-points').textContent = available;
   $('header-points').closest('button').setAttribute('aria-label', `Points wallet, ${available} points available`);
   $('wallet-summary').innerHTML = metricCard('Available', `${available} pts`, 'Sender balance')
-    + metricCard('On hold', `${held} pts`, 'Awaiting delivery') + metricCard('Paid out', `${paid} pts`, 'Confirmed deliveries');
+    + metricCard('On hold', `${held} pts`, 'Awaiting delivery') + metricCard('Paid out', `${paid} pts`, bonuses ? `Plus ${bonuses} demo bonus pts` : 'Confirmed deliveries');
   const history = [...state.favors].reverse();
   const active = history.filter(favor => favor.status === 'held');
   const complete = history.filter(favor => favor.status !== 'held');
@@ -921,8 +1063,9 @@ function renderWallet() {
     const delivered = favor.status === 'delivered';
     const status = delivered ? `${favor.points} pts paid` : `${favor.points} pts returned`;
     const activity = `${delivered ? 'Delivered' : 'Cancelled'} at ${ledgerTime.format(favor.settledAt)} HKT`;
-    const message = delivered ? `${favor.name} received ${favor.points} pts (current balance ${START_POINTS + earned.get(favor.name)} pts).` : 'Points returned to your balance.';
-    return `<article class="ledger-row"><div><h3>${favor.name} · ${favor.item}</h3><p>${favor.handoff} · ETA ${favor.eta}</p><p>${activity}</p><p>${message}</p></div>
+    const bonus = earnedBonus(favor);
+    const message = delivered ? `${favor.name} received ${favor.points} pts${bonus ? ` + ${bonus} bonus pts` : ''} (current balance ${START_POINTS + earned.get(favor.name)} pts).` : 'Points returned to your balance.';
+    return `<article class="ledger-row"><div><h3>${favor.name} · ${favor.item}</h3><p>${escapeHtml(favor.handoff)} · ETA ${favor.eta}</p><p>${activity}</p><p>${message}</p></div>
       <span class="pill ${delivered ? 'good' : ''}">${status}</span><button type="button" class="text-button" data-pass="${favor.id}">View pass</button></article>`;
   }).join('') : '<div class="notice"><h3>No completed handoffs yet</h3><p>Confirmed and cancelled favors will appear here.</p></div>';
 }
@@ -981,7 +1124,11 @@ function fillRequest(values, trip) {
   preferredTripId = trip?.id;
   delete requestForm.dataset.startStop;
   $('request-intro').textContent = trip ? `Prefilled for ${trip.name}’s ${toTime(trip.depart)} departure.` : 'Choose where and when your item needs to go.';
-  for (const [key, value] of Object.entries(request)) requestForm.elements[key].value = ['start', 'end'].includes(key) ? toTime(value) : value;
+  for (const key of ['route', 'direction', 'node', 'size', 'urgency', 'start', 'end', 'pickupLabel', 'dropoffLabel', 'pickupPin', 'dropoffPin', 'instructions']) {
+    requestForm.elements[key].value = ['start', 'end'].includes(key) ? toTime(values[key]) : values[key] ?? '';
+  }
+  $('request-extras').open = false;
+  updateRequestExtras();
   $('request-error').hidden = true;
   $('sort-matches').value = 'fit';
   if ($('unavailable-trips')) $('unavailable-trips').open = false;
@@ -999,6 +1146,7 @@ function planTrip(id) {
 }
 
 function showSheet(passId) {
+  clearInterval(challengeTimer);
   openPassId = passId;
   const title = $('dialog-title');
   title.tabIndex = -1;
@@ -1079,6 +1227,7 @@ function applyStartingStop(target) {
   if (target === 'request') {
     preferredTripId = undefined;
     $('request-error').hidden = true;
+    updateRequestExtras();
   }
   dialog.close();
   if (target === 'request') switchView('match', 'request');
@@ -1095,12 +1244,12 @@ function explain(candidate) {
     const contribution = models.coefficients[index] * features.priceInput[index];
     return `<dt>${label}</dt><dd>${contribution.toFixed(1)} pts</dd>`;
   }).join('');
-  $('dialog-content').innerHTML = `<h2 id="dialog-title">${trip.name}’s match details</h2><p>${handoffLabel(candidate)}</p>${stage}
+  $('dialog-content').innerHTML = `<h2 id="dialog-title">${trip.name}’s match details</h2><p>${escapeHtml(handoffLabel(candidate))}</p>${stage}
     <div class="dialog-block"><h3>KNN verdict · ${predicted ? 'Feasible' : 'Not feasible'}</h3><div class="neighbor-strip">${marks}</div>
-    <p>${votes} of 5 nearby training examples were feasible. The vote uses seven standardized features from this request and trip.</p>
+    <p>${votes} of 5 nearby training examples were feasible. Candidates first share the same corridor and direction. The recommendation ranks eligible trips by feasible KNN votes, then by similarity to the five neighbors.</p>
     <p>Urgency ${request.urgency} · ${['Morning', 'Midday', 'Afternoon', 'Evening'][features.period]} · ${features.ride} min ride</p></div>
     <div class="dialog-block"><h3>Rule baseline · ${features.rule ? 'Pass' : features.reason}</h3><p>${checks.join(' · ')}.</p>
-    <p>Reservations require both a feasible vote and a rule pass.</p></div>
+    <p>Detour: ${features.campusWalk} min campus walk + ${features.stationWalk} min station walk + 1 min handoff. Reservations require a feasible vote and a rule pass.</p></div>
     <div class="dialog-block"><h3>Regression quote · ${points} pts</h3><p>The model adds these contributions and rounds the total to a whole point.</p><details class="pricing-details"><summary>Show price breakdown</summary><dl>${pricing}</dl></details></div>
     ${candidate.available ? reviewButton(candidate) : ''}`;
   showSheet();
@@ -1110,8 +1259,9 @@ function reviewReservation(candidate) {
   if (!candidate?.available) return;
   const {trip, features, points} = candidate;
   const available = walletSummary(state.favors).available;
-  $('dialog-content').innerHTML = `<h2 id="dialog-title">Review reservation</h2><p>${trip.name} · ${handoffLabel(candidate)}</p>
-    <div class="quote-box"><dl><dt>Estimated arrival</dt><dd>${toTime(features.arrival)}</dd><dt>Points held</dt><dd>${points} pts</dd><dt>Balance after hold</dt><dd>${Math.max(0, available - points)} pts</dd></dl></div>
+  $('dialog-content').innerHTML = `<h2 id="dialog-title">Review reservation</h2><p>${trip.name} · ${escapeHtml(handoffLabel(candidate))}</p>
+    <div class="quote-box"><dl><dt>Estimated arrival</dt><dd>${toTime(features.arrival)}</dd><dt>Estimated journey</dt><dd>${features.ride + features.detour} min</dd><dt>Points held</dt><dd>${points} pts</dd><dt>Balance after hold</dt><dd>${Math.max(0, available - points)} pts</dd></dl></div>
+    ${request.instructions ? `<p class="handoff-instructions"><strong>Instructions</strong>${escapeHtml(request.instructions)}</p>` : ''}
     <p>${available < points ? 'Your points balance is too low for this trip.' : 'Confirm delivery to release the held points to the traveler.'}</p>
     <button type="button" class="button primary sheet-action" data-reserve="${trip.id}" ${available < points ? 'disabled' : ''}>Reserve for ${points} pts</button>`;
   showSheet();
@@ -1124,31 +1274,67 @@ function showPass(id) {
   const delivered = favor.status === 'delivered';
   const cancelled = favor.status === 'cancelled';
   const pickedUp = Boolean(favor.pickedUpAt) || delivered;
-  const [pickup, dropoff] = favor.handoff.split(' → ');
+  const awaiting = held && needsAcceptance(favor);
+  const [pickup, dropoff] = savedHandoffStops(favor);
   const pickupWindow = favor.pickupWindow ? `Pickup ${favor.pickupWindow}` : 'Meet at the pickup node';
-  const stage = held ? (pickedUp ? 'In transit' : 'Ready for pickup') : (delivered ? 'Delivered' : 'Cancelled');
+  const stage = handoffStatus(favor);
+  const progressStep = delivered ? 'Delivered' : pickedUp ? 'Picked up' : awaiting ? 'Offered' : 'Accepted';
   const progress = cancelled ? '<li class="complete">Reserved</li><li class="complete" aria-current="step">Refunded</li>'
-    : `<li class="complete"${held && !pickedUp ? ' aria-current="step"' : ''}>Reserved</li><li class="${pickedUp ? 'complete' : ''}"${held && pickedUp ? ' aria-current="step"' : ''}>Picked up</li><li class="${delivered ? 'complete' : ''}"${delivered ? ' aria-current="step"' : ''}>Delivered</li>`;
+    : ['Offered', 'Accepted', 'Picked up', 'Delivered'].map((step, index, steps) =>
+      `<li class="${index <= steps.indexOf(progressStep) ? 'complete' : ''}"${step === progressStep ? ' aria-current="step"' : ''}>${step}</li>`).join('');
+  const beforePickup = awaiting ? `<button type="button" class="button primary" data-accept="${favor.id}">Accept as traveler</button>`
+    : `<button type="button" class="button primary" data-pickup="${favor.id}">Mark picked up</button>`;
   const action = held ? (pickedUp
     ? `<button type="button" class="button primary" data-settle="${favor.id}" data-status="delivered">Confirm delivery</button>`
-    : `<button type="button" class="button primary" data-pickup="${favor.id}">Mark picked up</button><button type="button" class="button secondary" data-settle="${favor.id}" data-status="cancelled">Cancel and refund</button>`) : '';
+    : `${beforePickup}<button type="button" class="button secondary" data-settle="${favor.id}" data-status="cancelled">Cancel and refund</button>`) : '';
   $('dialog-content').innerHTML = `<h2 id="dialog-title">Handoff pass</h2><p>${favor.name} · ${favor.item}</p>
     <div class="handoff-ticket" data-route="${favor.route}"><div class="ticket-head"><span class="line-mark" aria-hidden="true">${routes[favor.route].code}</span><strong>${stage}</strong><span class="pill ${delivered ? 'good' : ''}">${favor.points} pts ${held ? 'held' : delivered ? 'paid' : 'returned'}</span></div>
-    <ol class="ticket-stops"><li><strong>${pickup}</strong><span>${pickupWindow}</span></li><li><strong>${dropoff}</strong><span>Estimated arrival ${favor.eta}${favor.deadline ? ` · Deliver by ${favor.deadline}` : ''}</span></li></ol></div>
+    <ol class="ticket-stops"><li><strong>${escapeHtml(pickup)}</strong><span>${pickupWindow}</span></li><li><strong>${escapeHtml(dropoff)}</strong><span>Estimated arrival ${favor.eta}${favor.deadline ? ` · Deliver by ${favor.deadline}` : ''}</span></li></ol></div>
+    ${favor.instructions ? `<p class="handoff-instructions"><strong>Instructions</strong>${escapeHtml(favor.instructions)}</p>` : ''}
     <ol class="handoff-steps" aria-label="Handoff progress">${progress}</ol>
-    ${held ? `<p class="pass-note">${pickedUp ? 'Confirm that the recipient has received the item.' : 'Mark pickup once the traveler has the item. Cancel before pickup to get your points back.'}</p><div class="pass-actions">${action}</div>` : ''}
+    ${journeyChallenge(favor)}
+    ${held ? `<p class="pass-note">${awaiting ? 'Switch to the traveler role to accept this offer.' : pickedUp ? 'Confirm that the recipient has received the item.' : 'Mark pickup once the traveler has the item. Cancel before pickup to get your points back.'}</p><div class="pass-actions">${action}</div>` : ''}
     ${cancelled ? '' : `<button type="button" class="text-button copy-pass" data-copy-pass="${favor.id}">Copy handoff details</button>
       <p class="copy-status" id="pass-copy-status" role="status"></p><textarea id="pass-copy-text" aria-label="Handoff details to copy" readonly rows="4" hidden></textarea>`}`;
   showSheet(id);
+  if ($('challenge-clock')) {
+    updateChallengeClock(favor);
+    challengeTimer = setInterval(() => updateChallengeClock(favor), 250);
+  }
+}
+
+function journeyChallenge(favor) {
+  if (!favor.offeredAt || favor.status === 'cancelled') return '';
+  if (favor.status === 'delivered') {
+    return `<div class="challenge-box"><h3>Traveler reward · ${favor.points + earnedBonus(favor)} pts</h3>
+      <p>Estimated ${favor.estimateMinutes} min · Simulated journey ${favor.journeyMinutes} min</p>
+      <p>${favor.points} base + ${favor.quickBonus} quick acceptance + ${favor.journeyBonus} early arrival</p></div>`;
+  }
+  return `<div class="challenge-box"><h3>Traveler challenge</h3><p>Estimated journey <strong>${favor.estimateMinutes} min</strong></p>
+    <p>Accept within ${QUICK_ACCEPT_SECONDS}s for <strong>+${QUICK_ACCEPT_POINTS} pts</strong>. Beat the estimate for <strong>+${EARLY_ARRIVAL_POINTS} pts</strong>.</p>
+    <p>After pickup, 1 second equals 1 demo journey minute. The demo adds bonuses at delivery without charging the sender extra.</p><p id="challenge-clock"></p></div>`;
+}
+
+function updateChallengeClock(favor) {
+  const meter = $('challenge-clock');
+  if (!meter || !dialog.open) return;
+  if (needsAcceptance(favor)) {
+    const remaining = Math.max(0, Math.ceil((favor.offeredAt + QUICK_ACCEPT_SECONDS * 1000 - Date.now()) / 1000));
+    meter.textContent = remaining ? `${remaining}s left for the quick-accept bonus.` : 'The bonus window ended. You can still accept the offer.';
+  } else if (favor.pickedUpAt) {
+    meter.textContent = `${elapsedJourney(favor)} of ${favor.estimateMinutes} simulated min elapsed.`;
+  } else {
+    meter.textContent = quickAcceptBonus(favor) ? `+${QUICK_ACCEPT_POINTS} quick-accept pts pending delivery. The journey clock starts at pickup.` : 'The journey clock starts at pickup.';
+  }
 }
 
 async function copyHandoff(id) {
   const favor = state.favors.find(entry => entry.id === id && entry.status !== 'cancelled');
   if (!favor) return;
   const status = $('pass-copy-status');
-  const [pickup, dropoff] = favor.handoff.split(' → ');
+  const [pickup, dropoff] = savedHandoffStops(favor);
   const pickupTime = favor.pickupWindow ? ` (${favor.pickupWindow} HKT)` : '';
-  const text = `CarryAlong demo handoff\n${favor.item} with ${favor.name}\nPickup: ${pickup}${pickupTime}\nDrop-off: ${dropoff}\nEstimated arrival: ${favor.eta} HKT`;
+  const text = `CarryAlong demo handoff\n${favor.item} with ${favor.name}\nPickup: ${pickup}${pickupTime}\nDrop-off: ${dropoff}\nEstimated arrival: ${favor.eta} HKT${favor.instructions ? `\nInstructions: ${favor.instructions}` : ''}`;
   try {
     await navigator.clipboard.writeText(text);
     if ($('pass-copy-status') === status) status.textContent = 'Handoff details copied.';
@@ -1167,10 +1353,13 @@ async function reserveTrip(id) {
   const candidate = evaluated.find(row => row.trip.id === id);
   if (!candidate?.available) return;
   const {trip, points, features} = candidate;
-  const item = Object.keys(sizes).find(label => sizes[label] === request.size);
+  const item = sizes[request.size];
+  const [pickup, dropoff] = handoffStops(candidate);
+  const now = Date.now();
   const favor = {id: uniqueId(), tripId: trip.id, name: trip.name, points, item,
-    route: trip.route, handoff: handoffLabel(candidate), eta: toTime(features.arrival), deadline: toTime(request.end),
-    pickupWindow: `${toTime(Math.max(request.start, trip.depart - 12))}–${toTime(trip.depart)}`, createdAt: Date.now()};
+    route: trip.route, pickup, dropoff, handoff: `${pickup} → ${dropoff}`, instructions: request.instructions,
+    eta: toTime(features.arrival), deadline: toTime(request.end), estimateMinutes: features.ride + features.detour, offeredAt: now,
+    pickupWindow: `${toTime(Math.max(request.start, trip.depart - 12))}–${toTime(trip.depart)}`, createdAt: now};
   const reserved = await updateState(() => reserve(state.favors, favor));
   dialog.close();
   if (reserved) {
@@ -1192,6 +1381,7 @@ function clearStopHint(event, label, description) {
 requestForm.addEventListener('input', event => {
   clearStopHint(event, 'request-intro', 'Choose where and when your item needs to go.');
   $('request-error').hidden = true;
+  if (['route', 'direction', 'size', 'pickupPin', 'dropoffPin'].includes(event.target.name)) updateRequestExtras();
   const preferred = allTrips().find(trip => trip.id === preferredTripId);
   if (preferred && (preferred.route !== requestForm.elements.route.value || preferred.direction !== requestForm.elements.direction.value)) {
     preferredTripId = undefined;
@@ -1211,7 +1401,18 @@ requestForm.addEventListener('submit', event => {
     $('request-end').focus();
     return;
   }
-  request = {...form, size: +form.size, urgency: +form.urgency, start, end};
+  const {pickup, dropoff} = readRequestPins(form);
+  if (pickup.error || dropoff.error) {
+    $('request-extras').open = true;
+    $('request-error').textContent = pickup.error ? `Pickup: ${pickup.error}` : `Drop-off: ${dropoff.error}`;
+    $('request-error').hidden = false;
+    $(pickup.error ? 'pickup-pin' : 'dropoff-pin').focus();
+    return;
+  }
+  const [campus, station] = form.direction === 'out' ? [pickup, dropoff] : [dropoff, pickup];
+  request = {...form, size: +form.size, urgency: +form.urgency, start, end,
+    pickupLabel: form.pickupLabel.trim(), dropoffLabel: form.dropoffLabel.trim(), instructions: form.instructions.trim(),
+    pickupPin: pickup.pin, dropoffPin: dropoff.pin, campusPinMinutes: campus.minutes, stationPinMinutes: station.minutes};
   renderResults();
   switchScreen('matches');
 });
@@ -1261,16 +1462,24 @@ document.addEventListener('click', async event => {
     button.disabled = true;
     await reserveTrip(button.dataset.reserve);
   }
-  if (button.dataset.pickup || button.dataset.settle) {
+  if (button.dataset.accept || button.dataset.pickup || button.dataset.settle) {
     button.disabled = true;
-    const id = button.dataset.pickup || button.dataset.settle;
-    const updated = await updateState(() => button.dataset.pickup ? markPickup(state.favors, id) : settle(state.favors, id, button.dataset.status));
+    const id = button.dataset.accept || button.dataset.pickup || button.dataset.settle;
+    const updated = await updateState(() => {
+      if (button.dataset.accept) return acceptOffer(state.favors, id);
+      if (button.dataset.pickup) return markPickup(state.favors, id);
+      return settle(state.favors, id, button.dataset.status);
+    });
     if (dialog.open && openPassId === id) {
       if (state.favors.some(favor => favor.id === id)) showPass(id);
       else dialog.close();
     }
     if (!updated) toast('This handoff has already changed.');
   }
+});
+
+dialog.addEventListener('close', () => {
+  if (!dialog.open) clearInterval(challengeTimer);
 });
 
 $('reset-button').addEventListener('click', () => {
@@ -1311,6 +1520,7 @@ $('sort-matches').addEventListener('change', renderResults);
 $('eval-split').addEventListener('change', renderBenchmark);
 $('eval-route').addEventListener('change', renderBenchmark);
 new ResizeObserver(drawMap).observe($('map-canvas').parentElement);
+updateRequestExtras();
 render();
 renderBenchmark();
 </script>

@@ -9,39 +9,58 @@ const startingStops = {
   choi: {name: 'Choi Hung MTR', code: routes.choi.code, description: 'Meet at Exit C2 · towards HKUST', lat: 22.3350, lon: 114.2088}
 };
 const NEARBY_LIMIT_METERS = 1200;
+const WALK_METERS_PER_MINUTE = 75;
+const QUICK_ACCEPT_SECONDS = 30;
+const QUICK_ACCEPT_POINTS = 2;
+const EARLY_ARRIVAL_POINTS = 3;
+
+function distanceMeters({lat, lon}, stop) {
+  const radians = degrees => degrees * Math.PI / 180;
+  const latitudeTerm = Math.sin(radians(stop.lat - lat) / 2) ** 2;
+  const longitudeTerm = Math.sin(radians(stop.lon - lon) / 2) ** 2;
+  const arc = latitudeTerm + Math.cos(radians(lat)) * Math.cos(radians(stop.lat)) * longitudeTerm;
+  return 12_742_000 * Math.asin(Math.sqrt(Math.min(1, arc)));
+}
 
 function nearestStartingStop({latitude, longitude, accuracy}) {
   if (![latitude, longitude, accuracy].every(Number.isFinite) || accuracy > 1000) return {status: 'uncertain'};
-  const radians = degrees => degrees * Math.PI / 180;
-  const distance = stop => {
-    const latitudeTerm = Math.sin(radians(stop.lat - latitude) / 2) ** 2;
-    const longitudeTerm = Math.sin(radians(stop.lon - longitude) / 2) ** 2;
-    const arc = latitudeTerm + Math.cos(radians(latitude)) * Math.cos(radians(stop.lat)) * longitudeTerm;
-    return 12_742_000 * Math.asin(Math.sqrt(Math.min(1, arc)));
-  };
-  const nearest = Object.entries(startingStops).map(([key, stop]) => ({key, meters: distance(stop)}))
+  const nearest = Object.entries(startingStops).map(([key, stop]) => ({key, meters: distanceMeters({lat: latitude, lon: longitude}, stop)}))
     .reduce((best, candidate) => candidate.meters < best.meters ? candidate : best);
   return nearest.meters <= NEARBY_LIMIT_METERS ? {status: 'found', ...nearest} : {status: 'outside'};
 }
 const nodes = {'North Gate': 0, 'Library / Atrium': 3, 'Academic Concourse': 5};
-const sizes = {Envelope: 1, 'Small pocket item': 2};
+const sizes = ['', 'Pocket size', 'Fits in bag', 'Additional bag'];
 const START_POINTS = 75;
 const bucket = time => time < 660 ? 0 : time < 840 ? 1 : time < 1080 ? 2 : 3;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const fromTime = time => time.split(':').reduce((hours, minutes) => Number(hours) * 60 + Number(minutes));
 const toTime = time => `${String(Math.floor(time / 60)).padStart(2, '0')}:${String(time % 60).padStart(2, '0')}`;
 
+function estimatePinWalk(value, anchor) {
+  if (!value.trim()) return {};
+  const parts = value.trim().match(/^([+-]?\d{1,3}(?:\.\d+)?)\s*,\s*([+-]?\d{1,3}(?:\.\d+)?)$/);
+  if (!parts || Math.abs(Number(parts[1])) > 90 || Math.abs(Number(parts[2])) > 180) return {error: 'Enter a map pin as latitude, longitude.'};
+  const lat = Number(parts[1]);
+  const lon = Number(parts[2]);
+  const meters = distanceMeters({lat, lon}, anchor);
+  if (meters > NEARBY_LIMIT_METERS) return {error: `Choose a pin within 1.2 km of ${anchor.name}.`};
+  return {pin: `${lat.toFixed(5)}, ${lon.toFixed(5)}`, minutes: Math.ceil(meters / WALK_METERS_PER_MINUTE)};
+}
+
 function pairFeatures(request, trip) {
-  const detour = Math.abs(nodes[request.node] - nodes[trip.node]) + 1;
+  const campusWalk = request.campusPinMinutes === undefined ? Math.abs(nodes[request.node] - nodes[trip.node])
+    : nodes[trip.node] + request.campusPinMinutes;
+  const stationWalk = request.stationPinMinutes ?? 0;
+  const detour = campusWalk + stationWalk + 1;
   const overlap = Math.max(0, Math.min(request.end, trip.depart) - Math.max(request.start, trip.depart - 12));
   const fit = Number(request.size <= trip.space);
   const period = bucket(trip.depart);
   const ride = routes[trip.route].minutes[period];
   const arrival = trip.depart + ride + detour;
   const pressure = clamp((60 - (request.end - request.start)) / 60, 0, 1);
-  const reason = !fit ? 'Item exceeds pocket capacity' : overlap <= 0 ? 'No pickup window overlap'
+  const reason = !fit ? 'Item exceeds carrying capacity' : overlap <= 0 ? 'No pickup window overlap'
     : detour > trip.limit ? 'Detour exceeds tolerance' : arrival > request.end ? 'Arrival misses the deadline' : '';
-  return {detour, overlap, fit, ride, arrival, period, pressure, reason, rule: !reason,
+  return {detour, campusWalk, stationWalk, overlap, fit, ride, arrival, period, pressure, reason, rule: !reason,
     matchInput: [detour, overlap, fit, request.urgency, trip.limit, ride, period],
     priceInput: [1, detour, request.urgency, request.size, pressure, ride]};
 }
@@ -59,8 +78,11 @@ function generatePairs() {
     const period = time < .26 ? 0 : time < .54 ? 1 : time < .78 ? 2 : 3;
     const depart = integer([480, 660, 840, 1080][period], [659, 839, 1079, 1290][period]);
     const start = depart + integer(-45, 12);
-    const request = {node: pick(Object.keys(nodes)), size: integer(1, 2), urgency: integer(1, 4), start, end: start + integer(27, 105)};
-    const trip = {node: pick(Object.keys(nodes)), route, depart, limit: pick(tolerances), space: random() < .62 ? 2 : 1};
+    const request = {node: pick(Object.keys(nodes)), size: integer(1, 3), urgency: integer(1, 4), start, end: start + integer(27, 105)};
+    const space = random();
+    const trip = {node: pick(Object.keys(nodes)), route, depart, limit: pick(tolerances), space: space < .28 ? 1 : space < .63 ? 2 : 3};
+    if (random() < .30) request.stationPinMinutes = integer(1, 7);
+    if (random() < .12) request.campusPinMinutes = integer(1, 7);
     const features = pairFeatures(request, trip);
     const target = Math.round(features.priceInput.reduce((sum, value, index) => sum + weights[index] * value, 0));
     return {route, ...features, target};
@@ -133,19 +155,44 @@ function reserve(favors, favor) {
   return true;
 }
 
-function settle(favors, id, status) {
+function settle(favors, id, status, now = Date.now()) {
   const favor = favors.find(entry => entry.id === id && entry.status === 'held');
   if (!favor || !['delivered', 'cancelled'].includes(status)) return false;
   if (Boolean(favor.pickedUpAt) !== (status === 'delivered')) return false;
   favor.status = status;
-  favor.settledAt = Date.now();
+  favor.settledAt = now;
+  if (status === 'delivered' && favor.offeredAt) {
+    favor.journeyMinutes = elapsedJourney(favor, now);
+    favor.quickBonus = quickAcceptBonus(favor);
+    favor.journeyBonus = favor.journeyMinutes < favor.estimateMinutes ? EARLY_ARRIVAL_POINTS : 0;
+  }
   return true;
 }
 
-function markPickup(favors, id) {
-  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && !entry.pickedUpAt);
+function acceptOffer(favors, id, now = Date.now()) {
+  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && entry.offeredAt && !entry.acceptedAt);
   if (!favor) return false;
-  favor.pickedUpAt = Date.now();
+  favor.acceptedAt = now;
+  return true;
+}
+
+function quickAcceptBonus(favor) {
+  const elapsed = favor.acceptedAt - favor.offeredAt;
+  return elapsed >= 0 && elapsed <= QUICK_ACCEPT_SECONDS * 1000 ? QUICK_ACCEPT_POINTS : 0;
+}
+
+function elapsedJourney(favor, now = Date.now()) {
+  return Math.max(1, Math.floor((now - favor.pickedUpAt) / 1000));
+}
+
+function earnedBonus(favor) { return (favor.quickBonus ?? 0) + (favor.journeyBonus ?? 0); }
+
+function needsAcceptance(favor) { return Boolean(favor.offeredAt && !favor.acceptedAt); }
+
+function markPickup(favors, id, now = Date.now()) {
+  const favor = favors.find(entry => entry.id === id && entry.status === 'held' && !entry.pickedUpAt);
+  if (!favor || needsAcceptance(favor)) return false;
+  favor.pickedUpAt = now;
   return true;
 }
 
@@ -154,14 +201,16 @@ function validateLedger() {
   for (let trial = 0; trial < 20; trial++) {
     const favors = [];
     const points = 20 + trial % 6;
-    const firstHeld = reserve(favors, {id: 'a', tripId: 'a', points});
+    const firstHeld = reserve(favors, {id: 'a', tripId: 'a', points, offeredAt: 1000, estimateMinutes: 20});
     const firstOkay = firstHeld && walletSummary(favors).held === points && walletSummary(favors).available === START_POINTS - points;
     const duplicateBlocked = !reserve(favors, {id: 'dup', tripId: 'a', points});
     const overspendBlocked = !reserve(favors, {id: 'big', tripId: 'b', points: START_POINTS});
-    const pickupRequired = !settle(favors, 'a', 'delivered') && markPickup(favors, 'a')
+    const accepted = !markPickup(favors, 'a') && acceptOffer(favors, 'a', 2000) && !acceptOffer(favors, 'a', 3000);
+    const pickupRequired = accepted && !settle(favors, 'a', 'delivered') && markPickup(favors, 'a', 3000)
       && !markPickup(favors, 'a') && !settle(favors, 'a', 'cancelled') && walletSummary(favors).held === points;
-    const delivered = settle(favors, 'a', 'delivered');
-    const paidOnce = pickupRequired && delivered && !settle(favors, 'a', 'delivered') && walletSummary(favors).paid === points && walletSummary(favors).held === 0;
+    const delivered = settle(favors, 'a', 'delivered', 7000);
+    const paidOnce = pickupRequired && delivered && !settle(favors, 'a', 'delivered') && earnedBonus(favors[0]) === 5
+      && walletSummary(favors).paid === points && walletSummary(favors).held === 0;
     const secondHeld = reserve(favors, {id: 'c', tripId: 'c', points: 15});
     const refunded = secondHeld && settle(favors, 'c', 'cancelled') && walletSummary(favors).available === START_POINTS - points;
     checks += [firstOkay, duplicateBlocked, overspendBlocked, paidOnce, refunded].filter(Boolean).length;

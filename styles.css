@@ -25,11 +25,12 @@ body { margin: 0; }
 .app-shell { max-width: var(--app-width); min-height: 100vh; min-height: 100dvh; margin: 0 auto; padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom)); background: var(--paper); }
 html { scroll-padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 12px); }
 button, input, select { font: inherit; }
+textarea { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 button, select, input { touch-action: manipulation; }
 button, input, select, summary { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #4d7d20; outline-offset: 3px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #4d7d20; outline-offset: 3px; }
 button { transition: background-color 150ms ease, color 150ms ease, transform 150ms ease; }
 button:active:not(:disabled) { transform: translateY(1px); }
 button[hidden], [hidden] { display: none !important; }
@@ -168,6 +169,7 @@ input[type="time"] { appearance: none; }
 .traveler p, .ledger-row p { color: var(--muted); font-size: .84rem; margin-top: 3px; }
 .pill { border-radius: 100px; padding: 4px 9px; background: #eef1ee; color: var(--muted); font-size: .76rem; font-weight: 730; flex: 0 0 auto; }
 .pill.good { background: #e6f3d8; color: #294e22; }
+.pill.recommended { background: var(--lime); color: #223e19; white-space: nowrap; }
 .pill.warn { background: var(--warn-bg); color: var(--warn); }
 .journey-facts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin: 12px 0 7px; padding: 11px 9px; background: #f1f6ea; border-radius: 10px; }
 .journey-facts .fact + .fact { padding-left: 7px; border-left: 1px solid #dce7d5; }
@@ -276,6 +278,29 @@ dialog .button { width: 100%; }
 .handoff-steps [aria-current] { background: var(--forest); color: #fff; }
 .pass-note { font-size: .9rem; }
 .pass-actions { display: grid; gap: 7px; }
+.request-extras { margin: 9px 0 5px; padding: 0 9px; background: #f6f8f2; border: 1px solid var(--border); border-radius: 9px; }
+.request-extras summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 5px; min-height: 44px; font-weight: 700; font-size: .85rem; color: var(--forest); list-style: none; }
+.request-extras summary::-webkit-details-marker { display: none; }
+.request-extras summary span { margin-left: auto; color: var(--muted); font-size: .72rem; font-weight: 650; }
+.request-extras summary::after { content: ''; width: 7px; height: 7px; margin: -4px 3px 0 2px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: rotate(45deg); }
+.request-extras[open] summary::after { margin-top: 4px; transform: rotate(225deg); }
+.extras-fields { padding-bottom: 9px; }
+.extras-fields p, .capacity-help { margin: 0 0 8px; font-size: .82rem; color: var(--muted); }
+.extras-fields fieldset { margin: 9px 0; padding: 7px 8px 8px; min-width: 0; border: 1px solid var(--border); border-radius: 7px; }
+.extras-fields legend { padding: 0 3px; font-weight: 750; font-size: .83rem; }
+.extras-fields legend span { font-weight: 450; color: var(--muted); }
+.extras-fields fieldset input + label { margin-top: 8px; }
+.extras-fields textarea { width: 100%; padding: 8px; resize: vertical; border: 1px solid #d9e1d6; border-radius: 8px; background: #f9faf7; color: var(--ink); }
+.extras-fields .pin-estimate { margin: 4px 0 0; }
+.pin-estimate:empty { display: none; }
+.result-detour-note { margin: 0 0 9px; }
+.handoff-instructions { padding: 8px; border-left: 3px solid #a9bd9c; border-radius: 5px; background: #f2f6ed; overflow-wrap: anywhere; white-space: pre-wrap; }
+.handoff-instructions strong { display: block; margin-bottom: 2px; color: var(--ink); }
+.ticket-stops li strong, .ledger-row p { overflow-wrap: anywhere; }
+.challenge-box { padding: 9px 10px 5px; margin: 9px 0; border: 1px solid #d8e6ce; border-radius: 9px; background: #f2f7e8; }
+.challenge-box h3 { margin-bottom: 3px; }
+.challenge-box p { margin-bottom: 4px; font-size: .83rem; }
+#challenge-clock { color: var(--forest); font-weight: 750; }
 .copy-pass { margin-top: 4px; }
 .copy-status { font-size: .83rem; }
 .copy-status:empty { display: none; }

@@ -40,11 +40,11 @@
         </section>
 
         <section class="home-section" aria-labelledby="sample-title">
-          <div class="section-heading"><div><h2 id="sample-title">Try a sample</h2><p>See how timing and pocket space affect a match.</p></div></div>
+          <div class="section-heading"><div><h2 id="sample-title">Try a sample</h2><p>See how timing and carrying capacity affect a match.</p></div></div>
           <div class="demo-list">
             <button type="button" data-scenario="standard"><span class="demo-icon icon-parcel" aria-hidden="true"></span><span><strong>Campus envelope</strong><small>Hang Hau · ready at 14:00</small></span><span class="chevron" aria-hidden="true"></span></button>
             <button type="button" data-scenario="tight"><span class="demo-icon icon-clock" aria-hidden="true"></span><span><strong>Tight deadline</strong><small>Hang Hau · deliver by 14:30</small></span><span class="chevron" aria-hidden="true"></span></button>
-            <button type="button" data-scenario="pocket"><span class="demo-icon icon-pocket" aria-hidden="true"></span><span><strong>Pocket capacity</strong><small>Choi Hung · small pocket item</small></span><span class="chevron" aria-hidden="true"></span></button>
+            <button type="button" data-scenario="pocket"><span class="demo-icon icon-pocket" aria-hidden="true"></span><span><strong>Takeaway food</strong><small>Choi Hung · additional bag</small></span><span class="chevron" aria-hidden="true"></span></button>
           </div>
         </section>
       </section>
@@ -70,13 +70,29 @@
             <div><label for="request-node">Campus handoff</label><select id="request-node" name="node"><option>Library / Atrium</option><option>North Gate</option><option>Academic Concourse</option></select></div>
           </div>
           <div class="inline-fields">
-            <div><label for="request-size">Item size</label><select id="request-size" name="size"><option value="1">Envelope</option><option value="2">Small pocket item</option></select></div>
+            <div><label for="request-size">Item size</label><select id="request-size" name="size"><option value="1">Pocket size</option><option value="2">Fits in bag</option><option value="3">Additional bag</option></select></div>
             <div><label for="request-urgency">Urgency</label><select id="request-urgency" name="urgency"><option value="1">1 · Flexible</option><option value="2" selected>2 · Standard</option><option value="3">3 · Soon</option><option value="4">4 · Urgent</option></select></div>
           </div>
+          <p class="capacity-help" id="size-hint" hidden>Use an additional bag for items carried separately, such as takeaway food.</p>
           <div class="inline-fields">
             <div><label for="request-start">Ready from</label><input id="request-start" name="start" type="time" required value="14:00"></div>
             <div><label for="request-end">Deliver by</label><input id="request-end" name="end" type="time" required value="15:00"></div>
           </div>
+          <details class="request-extras" id="request-extras"><summary>Pickup, drop-off &amp; instructions <span>Optional</span></summary>
+            <div class="extras-fields">
+              <p>Enter a place name or address. Paste a map pin as latitude, longitude to estimate the extra walk. Without a pin, agree on the exact location and any added time together.</p>
+              <fieldset><legend>Pickup <span id="pickup-anchor"></span></legend>
+                <label for="pickup-label">Pickup place</label><input type="text" id="pickup-label" name="pickupLabel" maxlength="100" placeholder="e.g. Outside the café">
+                <label for="pickup-pin">Pickup map pin</label><input type="text" id="pickup-pin" name="pickupPin" maxlength="45" placeholder="e.g. 22.3386, 114.2620" spellcheck="false">
+              </fieldset>
+              <fieldset><legend>Drop-off <span id="dropoff-anchor"></span></legend>
+                <label for="dropoff-label">Drop-off place</label><input type="text" id="dropoff-label" name="dropoffLabel" maxlength="100" placeholder="e.g. Next to the station entrance">
+                <label for="dropoff-pin">Drop-off map pin</label><input type="text" id="dropoff-pin" name="dropoffPin" maxlength="45" placeholder="Latitude, longitude" spellcheck="false">
+              </fieldset>
+              <label for="request-instructions">Additional instructions</label><textarea id="request-instructions" name="instructions" maxlength="240" rows="3" placeholder="e.g. Please keep the food bag upright."></textarea>
+              <p id="pin-estimate" class="pin-estimate" role="status"></p>
+            </div>
+          </details>
           <p class="form-error" id="request-error" role="alert" hidden></p>
           <button type="submit" class="button primary search-button">Find matches</button>
         </form>
@@ -86,6 +102,7 @@
         <div class="screen-actions"><button type="button" class="button secondary" data-screen="request">Edit request</button><span id="result-count" class="counter"></span></div>
         <div class="page-heading"><h1 id="result-title">Trip matches</h1></div>
         <div class="route-ticket" id="result-ticket"><span class="line-mark" aria-hidden="true"></span><div><strong id="result-context"></strong><p id="result-window"></p></div></div>
+        <p class="field-note result-detour-note" id="result-detour-note" hidden></p>
         <div class="results-sort" id="results-sort"><label for="sort-matches">Sort matches</label><select id="sort-matches"><option value="fit">Best fit</option><option value="arrival">Earliest arrival</option><option value="points">Lowest points</option></select></div>
         <div id="results" class="result-list"></div>
         <p id="match-status" role="status" class="sr-only"></p>
@@ -116,7 +133,7 @@
             <div><label for="trip-depart">Departure</label><input type="time" id="trip-depart" name="depart" required value="14:22"></div>
             <div><label for="trip-limit">Max detour (min)</label><input type="number" id="trip-limit" name="limit" min="0" max="20" step="1" value="5" required></div>
           </div>
-          <label for="trip-space">Pocket capacity</label><select name="space" id="trip-space"><option value="1">Envelope</option><option value="2" selected>Small pocket item</option></select>
+          <label for="trip-space">Carrying capacity</label><select name="space" id="trip-space"><option value="1">Pocket size</option><option value="2" selected>Fits in bag</option><option value="3">Additional bag</option></select>
           <button type="submit" class="button primary search-button">Add demo trip</button>
         </form>
       </section>
@@ -135,7 +152,7 @@
       </section>
       <section class="panel lab-panel" aria-labelledby="assumptions-title">
         <h2 id="assumptions-title">Demo data and assumptions</h2>
-        <p>We use the proposal’s reported detour-tolerance distribution to generate synthetic pairs. Trip and walking times are illustrative. The label is feasible only when all four checks pass for pocket fit, pickup overlap, detour tolerance and arrival deadline.</p>
+        <p>We use the proposal’s reported detour-tolerance distribution to generate synthetic pairs. Trip and walking times are illustrative. The label is feasible only when carrying capacity, pickup overlap, detour tolerance and arrival deadline all pass.</p>
         <p>An ordinary least squares model fits rounded point targets generated by an illustrative pricing formula. Its inputs are detour minutes, urgency, item size, time pressure and ride time. The results measure how closely each model learns its synthetic labels. Real commuter behavior and perceived fairness would require a separate study.</p>
         <p>Nearby stop uses approximate station and bus stop positions from <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> and meeting points from <a href="https://shaw-auditorium.hkust.edu.hk/location-transport" target="_blank" rel="noopener noreferrer">HKUST’s travel guide</a>.</p>
         <p id="ledger-checks" class="check-text"></p>
