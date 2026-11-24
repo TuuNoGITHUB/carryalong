@@ -102,61 +102,7 @@ function updateRequestExtras() {
   const estimates = [pickup, dropoff].map((pin, index) => pin.error ? `${index === 0 ? 'Pickup' : 'Drop-off'}: ${pin.error}` : pin.minutes === undefined ? ''
     : `${index === 0 ? 'Pickup' : 'Drop-off'} pin: ${pin.minutes} min from ${anchors[index].name}.`);
   $('pin-estimate').textContent = estimates.filter(Boolean).join(' ');
-}
-
-function drawMap() {
-  const canvas = $('map-canvas');
-  const {width, height} = canvas.getBoundingClientRect();
-  if (!width || !height) return;
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.round(width * ratio);
-  canvas.height = Math.round(height * ratio);
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  ctx.scale(ratio, ratio);
-  ctx.lineCap = 'round';
-
-  // Decorative contour traces keep the foreground route diagram easy to read.
-  for (let i = 0; i < 13; i++) {
-    ctx.beginPath();
-    const trace = i * 10;
-    ctx.moveTo(-10, 10 + trace);
-    ctx.bezierCurveTo(width * .19, trace - 22, width * .16, trace + 24, width * .41, trace + 30);
-    ctx.bezierCurveTo(width * .63, trace + 40, width * .64, trace - 28, width + 10, trace - 10);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = i % 4 === 0 ? '#d5f38425' : '#bcdbc016';
-    ctx.stroke();
-  }
-
-  const stationX = width * .66;
-  const campus = [width * .12, height * .49];
-  const branch = [width * .34, height * .49];
-  const terminals = {choi: [stationX, height * .25], hang: [stationX, height * .70]};
-  function path(terminal, color, lineWidth) {
-    ctx.beginPath();
-    ctx.moveTo(...campus);
-    ctx.lineTo(...branch);
-    ctx.bezierCurveTo(width * .49, branch[1], width * .47, terminal[1], width * .6, terminal[1]);
-    ctx.lineTo(...terminal);
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = color;
-    ctx.stroke();
-  }
-  const activeRoute = requestForm.elements.route.value;
-  const inactive = activeRoute === 'choi' ? 'hang' : 'choi';
-  path(terminals[inactive], '#8da596', 2.4);
-  path(terminals[activeRoute], '#daf58d30', 10);
-  path(terminals[activeRoute], '#daf58d', 3);
-  for (const [point, active] of [[campus, true], [terminals[inactive], false], [terminals[activeRoute], true]]) {
-    ctx.beginPath();
-    ctx.arc(...point, active ? 6 : 5, 0, 2 * Math.PI);
-    ctx.fillStyle = '#18382e';
-    ctx.fill();
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = active ? '#daf58d' : '#9caf9f';
-    ctx.stroke();
-  }
-  canvas.parentElement.setAttribute('aria-label', `Schematic of HKUST to Choi Hung and Hang Hau. Selected corridor: ${routes[activeRoute].name}.`);
+  syncHandoffMaps();
 }
 
 function allTrips() { return [...seedTrips, ...state.trips]; }
@@ -260,7 +206,6 @@ function renderResults() {
   const availableCards = open.map((candidate, i) => i === 0 ? featuredCard(candidate) : compactCard(candidate)).join('');
   const blockedCards = blocked.length ? `<details class="blocked-trips" id="unavailable-trips" ${!open.length || expanded ? 'open' : ''}><summary>Unavailable trips <span>${blocked.length}</span></summary><div>${blocked.map(compactCard).join('')}</div></details>` : '';
   $('results').innerHTML = notice + availableCards + blockedCards;
-  drawMap();
 }
 
 function renderTrips() {
@@ -361,7 +306,7 @@ function focusScreen(screen) {
 function switchScreen(name) {
   const screen = $(`${name}-screen`);
   for (const sibling of screen.parentElement.children) sibling.hidden = sibling !== screen;
-  if (name === 'request') drawMap();
+  syncHandoffMaps();
   focusScreen(screen);
 }
 
@@ -373,7 +318,7 @@ function switchView(view, screen) {
   });
   if (screen) switchScreen(screen);
   else {
-    if (view === 'match') drawMap();
+    if (view === 'match') syncHandoffMaps();
     focusScreen($(`view-${view}`));
   }
 }
@@ -421,7 +366,7 @@ function showNearby(context) {
     <input type="radio" name="starting-stop" value="${key}"></label>`).join('');
   const actions = (context === 'home' ? ['request', 'trip'] : [context]).map((target, index) =>
     `<button type="button" class="button ${index === 0 ? 'primary' : 'secondary'}" data-use-stop="${target}" disabled>Use in ${target}</button>`).join('');
-  $('dialog-content').innerHTML = `<h2 id="dialog-title">Find your starting stop</h2><p>Your location is used once on this device to suggest a stop.</p>
+  $('dialog-content').innerHTML = `<h2 id="dialog-title">Find your starting stop</h2><p>Use a one-time location reading for the nearby stop and the map.</p>
     <div class="location-actions"><button type="button" class="button primary" id="locate-device"><span class="location-icon" aria-hidden="true"></span>Use my location</button>
     <button type="button" class="button secondary" id="locate-sample">Try a sample location</button></div>
     <p id="nearby-status" class="nearby-status" role="status" hidden></p>
@@ -463,15 +408,15 @@ function detectStartingStop() {
   status.textContent = 'Waiting for your device’s location…';
   $('locate-device').disabled = true;
   $('locate-sample').disabled = true;
-  navigator.geolocation.getCurrentPosition(position => {
-    showStopSuggestion(nearestStartingStop(position.coords), status, initialStop, false);
-  }, error => {
+  getDevicePosition().then(position => {
+    showStopSuggestion(nearestStartingStop(position), status, initialStop, false);
+  }).catch(error => {
     if (!dialog.open || $('nearby-status') !== status) return;
     status.textContent = error.code === 1 ? 'Location access was declined or blocked. Choose a stop below.'
       : 'Your device couldn’t find a location. Try again or choose a stop below.';
     $('locate-device').disabled = false;
     $('locate-sample').disabled = false;
-  }, {maximumAge: 0, timeout: 9000});
+  });
 }
 
 function applyStartingStop(target) {
@@ -648,7 +593,7 @@ requestForm.addEventListener('input', event => {
   }
 });
 $('trip-form').addEventListener('input', event => clearStopHint(event, 'trip-intro', 'Choose your route and carrying limits.'));
-requestForm.elements.route.addEventListener('change', drawMap);
+for (const key of ['route', 'direction']) requestForm.elements[key].addEventListener('change', () => syncHandoffMaps(true));
 requestForm.addEventListener('submit', event => {
   event.preventDefault();
   const form = Object.fromEntries(new FormData(requestForm));
@@ -756,6 +701,7 @@ $('reset-button').addEventListener('click', () => {
     $('eval-route').value = 'all';
     renderBenchmark();
     dialog.close();
+    resetHandoffMaps();
     fillRequest(scenarios.standard);
     switchView('match', 'home');
     toast('Demo reset.');
@@ -778,7 +724,6 @@ $('filter-direction').addEventListener('change', renderTrips);
 $('sort-matches').addEventListener('change', renderResults);
 $('eval-split').addEventListener('change', renderBenchmark);
 $('eval-route').addEventListener('change', renderBenchmark);
-new ResizeObserver(drawMap).observe($('map-canvas').parentElement);
 updateRequestExtras();
 render();
 renderBenchmark();
